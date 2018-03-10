@@ -1,0 +1,28 @@
+- hosts: home-assistant-servers
+  sudo: yes
+  tasks:
+
+  - name: copy files to server
+    synchronize:
+      src=../custom_component/domus.py
+      dest=/home/homeassistant/.homeassistant/custom_components/light
+      delete=yes
+    tags: copy domus light component
+
+  - name: fix ownership
+    file:
+      path: /home/homeassistant/.homeassistant/custom_components
+      owner: homeassistant
+      group: homeassistant
+      recurse: yes
+    tags: fix ownership
+
+  - name: Ensure directories are 0755
+    command: find /home/homeassistant/.homeassistant/custom_components -type d -exec chmod -c 0755 {} \;
+    register: chmod_result
+    changed_when: "chmod_result.stdout != \"\""
+
+  - name: Ensure files are 0644
+    command: find /home/homeassistant/.homeassistant/custom_components -type f -exec chmod -c 0644 {} \;
+    register: chmod_result
+    changed_when: "chmod_result.stdout != \"\""
