@@ -39,11 +39,9 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     light_array = []
 
     for alias in response.json()['aliases']:
-        if (
-             alias['aliasMapElement']['elementType'].upper() == 'LIGHT'
+        if (alias['aliasMapElement']['elementType'].upper() == 'LIGHT'
              and
-             alias['enabled']
-           ):
+             alias['enabled']):
            if ( alias['moduleType'].startswith("AM") ):
                light_array.append(DomusLight(alias,base_url,password,0))
            else:
