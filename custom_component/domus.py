@@ -44,18 +44,22 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
              and
              alias['enabled']
            ):
-           light_array.append(DomusLight(alias,base_url,password))
+           if ( alias['moduleType'].startswith("AM") ):
+               light_array.append(DomusLight(alias,base_url,password,0))
+           else:
+               light_array.append(DomusLight(alias,base_url,password,SUPPORT_BRIGHTNESS))
     add_devices(light_array)
 
 class DomusLight(Light):
 
-    def __init__(self, alias, base_url, password):
+    def __init__(self, alias, base_url, password, capabilities):
         self._name = alias['label'].replace("_"," ")
         self._alias=alias['label']
         self._state = False
         self._brightness = 100
         self._base_url = base_url
         self._password = password
+        self._capabilities = capabilities
 
     @property
     def name(self):
@@ -70,7 +74,7 @@ class DomusLight(Light):
     @property
     def supported_features(self):
         """Flag supported features."""
-        return SUPPORT_BRIGHTNESS 
+        return self._capabilities
 
     @property
     def is_on(self):
