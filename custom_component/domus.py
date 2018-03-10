@@ -85,7 +85,7 @@ class DomusLight(Light):
             new_brightness=int(kwargs.get(ATTR_BRIGHTNESS, 255))/2.5
             request_string=self._base_url+"/dimbright/"+self._alias+("/1","/0")[self._state]+"/"+str(self._brightness)+"/"+str(new_brightness)
         else:
-            response=requests.post(self._base_url+"/on/"+self._alias,auth=("", self._password));
+            request_string=self._base_url+"/on/"+self._alias
         response=requests.post(request_string,auth=("", self._password));
 
         self.update()
