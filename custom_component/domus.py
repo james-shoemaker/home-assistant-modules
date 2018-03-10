@@ -81,10 +81,13 @@ class DomusLight(Light):
 
     def turn_on(self, **kwargs):
         """Instruct the light to turn on."""
-
-        new_brightness=int(kwargs.get(ATTR_BRIGHTNESS, 255))/2.5
-        request_string=self._base_url+"/dimbright/"+self._alias+("/1","/0")[self._state]+"/"+str(self._brightness)+"/"+str(new_brightness)
+        if(self._capabilities == SUPPORT_BRIGHTNESS):
+            new_brightness=int(kwargs.get(ATTR_BRIGHTNESS, 255))/2.5
+            request_string=self._base_url+"/dimbright/"+self._alias+("/1","/0")[self._state]+"/"+str(self._brightness)+"/"+str(new_brightness)
+        else:
+            response=requests.post(self._base_url+"/on/"+self._alias,auth=("", self._password));
         response=requests.post(request_string,auth=("", self._password));
+
         self.update()
 
     def turn_off(self, **kwargs):
