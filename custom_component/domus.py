@@ -87,14 +87,14 @@ class DomusLight(Light):
             if(check_for_error(response)):
                 self._state=True
                 self._brightness=100
-               if(self._capabilities == SUPPORT_BRIGHTNESS):
-                   new_brightness=int(float(kwargs.get(ATTR_BRIGHTNESS, 255))/2.55)
-                   if(new_brightness < 1):
-                       new_brightness=1
-                   request_string=self._base_url+"/dimbright/"+self._alias+("/0","/1")[self._state]+"/"+str(self._brightness)+"/"+str(new_brightness)
-               response=requests.post(request_string,auth=("", self._password));
-               if(check_for_error(response)):
-                   self.update()
+                if(self._capabilities == SUPPORT_BRIGHTNESS):
+                    new_brightness=int(float(kwargs.get(ATTR_BRIGHTNESS, 255))/2.55)
+                    if(new_brightness < 1):
+                        new_brightness=1
+                    request_string=self._base_url+"/dimbright/"+self._alias+("/0","/1")[self._state]+"/"+str(self._brightness)+"/"+str(new_brightness)
+                response=requests.post(request_string,auth=("", self._password));
+                if(check_for_error(response)):
+                    self.update()
 
     def turn_off(self, **kwargs):
         # Instruct the light to turn off.
@@ -110,8 +110,9 @@ class DomusLight(Light):
             self._state = status['state']==1
             self._brightness = int(status['level'])
 
-    def check_for_error(response)
+    def check_for_error(response):
         if not response.ok:
             _LOGGER.error("Could not connect to Domus.Link")
             return False
-        else return True
+        else:
+            return True
