@@ -61,49 +61,57 @@ class DomusLight(Light):
 
     @property
     def name(self):
-        """Return the display name of this light."""
+        # Return the display name of this light.
         return self._name
 
     @property
     def brightness(self):
-        """Return the brightness of the light."""
-        return int(self._brightness)*2.5
+        # Return the brightness of the light.
+        return int(float(self._brightness)*2.55)
 
     @property
     def supported_features(self):
-        """Flag supported features."""
+        # Flag supported features.
         return self._capabilities
 
     @property
     def is_on(self):
-        """Return true if light is on."""
+        # Return true if light is on.
         return self._state
 
     def turn_on(self, **kwargs):
-        """Instruct the light to turn on."""
-        if(self._capabilities == SUPPORT_BRIGHTNESS):
-            new_brightness=int(kwargs.get(ATTR_BRIGHTNESS, 255))/2.5
-            request_string=self._base_url+"/dimbright/"+self._alias+("/1","/0")[self._state]+"/"+str(self._brightness)+"/"+str(new_brightness)
-        else:
+        # Instruct the light to turn on.
+        if(not self._state):
             request_string=self._base_url+"/on/"+self._alias
-        response=requests.post(request_string,auth=("", self._password));
-
-        self.update()
+            response=requests.post(request_string,auth=("", self._password));
+            if(check_for_error(response));
+                self._state=True
+                self._brightness=100
+               if(self._capabilities == SUPPORT_BRIGHTNESS):
+                   new_brightness=int(float(kwargs.get(ATTR_BRIGHTNESS, 255))/2.55)
+                   if(new_brightness < 1):
+                       new_brightness=1
+                   request_string=self._base_url+"/dimbright/"+self._alias+("/0","/1")[self._state]+"/"+str(self._brightness)+"/"+str(new_brightness)
+               response=requests.post(request_string,auth=("", self._password));
+               if(check_for_error(response));
+                   self.update()
 
     def turn_off(self, **kwargs):
-        """Instruct the light to turn off."""
+        # Instruct the light to turn off.
         response=requests.post(self._base_url+"/off/"+self._alias,auth=("", self._password));
-        if not response.ok:
-            _LOGGER.error("Could not connect to Domus.Link")
-            return False
-        self.update()
+        if(check_for_error(response));
+            self.update()
 
     def update(self):
-        """Fetch new state data for this light."""
+        # Fetch new state data for this light.
         response=requests.get(self._base_url+"/aliasstate/"+self._alias,auth=("", self._password));
+        if(check_for_error(response)):
+            status=response.json()
+            self._state = status['state']==1
+            self._brightness = int(status['level'])
+
+    def check_for_error(response)
         if not response.ok:
             _LOGGER.error("Could not connect to Domus.Link")
             return False
-        status=response.json()
-        self._state = status['state']==1
-        self._brightness = int(status['level'])
+        else return True
