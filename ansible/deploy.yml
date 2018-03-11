@@ -26,3 +26,7 @@
     command: find /home/homeassistant/.homeassistant/custom_components -type f -exec chmod -c 0644 {} \;
     register: chmod_result
     changed_when: "chmod_result.stdout != \"\""
+
+  - name: restart home assistant service
+    command: systemctl restart home-assistant@homeassistant.service
+    
