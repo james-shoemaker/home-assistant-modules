@@ -59,6 +59,13 @@ class DomusLight(Light):
         self._password = password
         self._capabilities = capabilities
 
+    def check_for_error(response):
+        if not response.ok:
+            _LOGGER.error("Could not connect to Domus.Link")
+            return False
+        else:
+            return True
+
     @property
     def name(self):
         # Return the display name of this light.
@@ -84,7 +91,7 @@ class DomusLight(Light):
         if(not self._state):
             request_string=self._base_url+"/on/"+self._alias
             response=requests.post(request_string,auth=("", self._password));
-            if(check_for_error(response)):
+            if(self.check_for_error(response)):
                 self._state=True
                 self._brightness=100
                 if(self._capabilities == SUPPORT_BRIGHTNESS):
@@ -93,26 +100,20 @@ class DomusLight(Light):
                         new_brightness=1
                     request_string=self._base_url+"/dimbright/"+self._alias+("/0","/1")[self._state]+"/"+str(self._brightness)+"/"+str(new_brightness)
                 response=requests.post(request_string,auth=("", self._password));
-                if(check_for_error(response)):
+                if(self.check_for_error(response)):
                     self.update()
 
     def turn_off(self, **kwargs):
         # Instruct the light to turn off.
         response=requests.post(self._base_url+"/off/"+self._alias,auth=("", self._password));
-        if(check_for_error(response)):
+        if(self.check_for_error(response)):
             self.update()
 
     def update(self):
         # Fetch new state data for this light.
         response=requests.get(self._base_url+"/aliasstate/"+self._alias,auth=("", self._password));
-        if(check_for_error(response)):
+        if(self.check_for_error(response)):
             status=response.json()
             self._state = status['state']==1
             self._brightness = int(status['level'])
 
-    def check_for_error(response):
-        if not response.ok:
-            _LOGGER.error("Could not connect to Domus.Link")
-            return False
-        else:
-            return True
