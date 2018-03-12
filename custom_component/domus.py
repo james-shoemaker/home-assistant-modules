@@ -59,7 +59,7 @@ class DomusLight(Light):
         self._password = password
         self._capabilities = capabilities
 
-    def check_for_error(response):
+    def check_for_error(self, response):
         if not response.ok:
             _LOGGER.error("Could not connect to Domus.Link")
             return False
